@@ -9,7 +9,5 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
         <App />
-        {/*<div>Приложение работает Symbat </div>*/}
-        {/*<button>Кнопка</button>*/}
     </React.StrictMode>
 );
