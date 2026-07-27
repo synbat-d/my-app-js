@@ -1,49 +1,62 @@
-import React, {useRef, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import './styles/App.css'
-import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
-import MyButton from "./components/UI/button/MyButton";
+import PostForm from "./components/PostForm";
+import MySelect from "./components/UI/select/MySelect";
 import MyInput from "./components/UI/input/MyInput";
+import PostFilter from "./components/PostFilter";
 
 function App() {
 
     const [posts, setPosts] = useState(
         [
-            {id: 1, title: 'Javascript 1', body: 'Description 1'},
-            {id: 2, title: 'Javascript 2', body: 'Description 2'},
-            {id: 3, title: 'Javascript 3', body: 'Description 3'},
+            {id: 1, title: 'АА', body: 'ббб'},
+            {id: 2, title: 'ГГ', body: 'ааа'},
+            {id: 3, title: 'ББ', body: 'яяя'},
         ]
     )
 
-    const [title, setTitle] = useState('')
+    const [filter, setFilter] = useState({sort: '', query: ''});
 
-    const bodyInputRef = useRef();
+    const sortedPosts = useMemo(() => {
+        console.log('Отработала Функция Сорртед Постс');
+        if (filter.sort) {
+            return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort]))
+        } else {
+            return posts;
+        }
+    }, [filter.sort, posts]);
 
-    const addNewPost = (e) => {
-        e.preventDefault()
-        console.log(title)
-        console.log(bodyInputRef.current.value)
+    const sortedAndSearchedPosts = useMemo(() => {
+        if (filter.query) {
+            return sortedPosts.filter((post) =>
+                post.title.toLowerCase().includes(filter.query.toLowerCase()) || post.body.toLowerCase().includes(filter.query.toLowerCase())
+            );
+        }
+        // Если поиск пустой — возвращаем весь отсортированный массив
+        return sortedPosts;
+    }, [filter.query, sortedPosts])
+
+    const createPost = (newPost) => {
+        setPosts([...posts, newPost])
     }
+
+    // Получаем post из дочернего элемента
+    const removePost = (post) => {
+        setPosts(posts.filter(p => p.id !== post.id))
+    }
+
 
     return (
         <div className="App">
-            <form>
-                {/*Упровляемый компонент*/}
-                <MyInput
-                    value = {title}
-                    onChange = {e => setTitle(e.target.value)}
-                    type="text"
-                    placeholder={"Название поста"}
-                />
-                {/*НеУпровляемый компонент*/}
-                <MyInput
-                    ref={bodyInputRef}
-                    type="text"
-                    placeholder={"Описание поста"}
-                />
-                <MyButton onClick={addNewPost}>Создать пост</MyButton>
-            </form>
-            <PostList posts={posts} title={ "Посты про JavaScript"} />
+            <PostForm create={createPost}/>
+            <PostFilter filter={filter} setFilter={setFilter} />
+            <hr style={{margin: '15px 0'}}/>
+            {sortedAndSearchedPosts.length !== 0
+                ? <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Посты про JavaScript"}/>
+                : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
+            }
+
         </div>
     );
 }
