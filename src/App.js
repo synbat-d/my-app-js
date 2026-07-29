@@ -2,9 +2,9 @@ import React, {useMemo, useState} from 'react';
 import './styles/App.css'
 import PostList from "./components/PostList";
 import PostForm from "./components/PostForm";
-import MySelect from "./components/UI/select/MySelect";
-import MyInput from "./components/UI/input/MyInput";
 import PostFilter from "./components/PostFilter";
+import MyModal from "./components/UI/MyModal/MyModal";
+import MyButton from "./components/UI/button/MyButton";
 
 function App() {
 
@@ -17,6 +17,7 @@ function App() {
     )
 
     const [filter, setFilter] = useState({sort: '', query: ''});
+    const [modal, setModal] = useState(false);
 
     const sortedPosts = useMemo(() => {
         console.log('Отработала Функция Сорртед Постс');
@@ -39,6 +40,7 @@ function App() {
 
     const createPost = (newPost) => {
         setPosts([...posts, newPost])
+        setModal(false)
     }
 
     // Получаем post из дочернего элемента
@@ -49,14 +51,16 @@ function App() {
 
     return (
         <div className="App">
-            <PostForm create={createPost}/>
-            <PostFilter filter={filter} setFilter={setFilter} />
-            <hr style={{margin: '15px 0'}}/>
-            {sortedAndSearchedPosts.length !== 0
-                ? <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Посты про JavaScript"}/>
-                : <h1 style={{textAlign: 'center'}}>Посты не найдены!</h1>
-            }
+            <MyButton
+                style={{marginTop: 30}}
+                onClick={() => setModal(true)}>Создать Пост</MyButton>
+            <MyModal visible={modal} setVisible={setModal}>
+                <PostForm create={createPost}/>
+            </MyModal>
 
+            <hr style={{margin: '15px 0'}}/>
+            <PostFilter filter={filter} setFilter={setFilter}/>
+            <PostList remove={removePost} posts={sortedAndSearchedPosts} title={"Посты про JavaScript"}/>
         </div>
     );
 }
